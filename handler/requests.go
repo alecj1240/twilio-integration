@@ -26,7 +26,8 @@ type ClientState struct {
 	APIKeySID          string `json:"APIKeySID"`
 	APIKeySecret       string `json:"APIKeySecret"`
 	TwilioAccountSID   string `json:"TwilioAccoutnSID"`
-	TwilioPhoneNumbers string `json:"twilioPhoneNumbers"`
+	TwilioPhoneNumbers string `json:"twilioPhoneNumber"`
+	TwilioAreaCode     string `json:"areaCode"`
 }
 
 type UserRequest struct {
@@ -106,6 +107,8 @@ func FormatRequest(req *http.Request) Payload {
 		fmt.Println(err)
 	}
 
+	log.Println(string(b))
+
 	var msg Payload
 	err = json.Unmarshal(b, &msg)
 	if err != nil {
@@ -115,7 +118,7 @@ func FormatRequest(req *http.Request) Payload {
 	return msg
 }
 
-func PostRequest(url string, jsonBody map[string]string) []byte {
+func PostRequest(url string) []byte {
 	vard := map[string]string{}
 	requestBody, err := json.Marshal(vard)
 	if err != nil {

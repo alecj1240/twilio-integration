@@ -1,14 +1,12 @@
-package mongo
+package mymongo
 
 import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type User struct {
@@ -18,23 +16,15 @@ type User struct {
 	TwilioAccountSID string
 }
 
-func Connect() *mongo.Collection {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
-		"mongodb+srv://alecjones:C3ITZEfRfY4R%404F808H@clusterjones-0g5df.mongodb.net/test",
-	))
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Connected to MongoDB!")
+func Connect(client *mongo.Client) *mongo.Collection {
+	collection := client.Database("hackathon").Collection("users")
 
-	collection := client.Database("loonie").Collection("users")
 	return collection
 }
 
-func CreateUser(ZeitID string, TwilioKeySID string, TwilioKeySecret string, TwilioAccountSID string) {
+func CreateUser(client *mongo.Client, ZeitID string, TwilioKeySID string, TwilioKeySecret string, TwilioAccountSID string) {
 	newUser := User{ZeitID, TwilioKeySID, TwilioKeySecret, TwilioAccountSID}
-	collection := Connect()
+	collection := Connect(client)
 	insertResult, err := collection.InsertOne(context.TODO(), newUser)
 	if err != nil {
 		log.Fatal(err)
@@ -43,9 +33,9 @@ func CreateUser(ZeitID string, TwilioKeySID string, TwilioKeySecret string, Twil
 	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
 }
 
-func FindUser(ZeitID string) User {
+func FindUser(client *mongo.Client, ZeitID string) User {
 	filter := bson.D{{"zeitid", ZeitID}}
-	collection := Connect()
+	collection := Connect(client)
 	// create a value into which the result can be decoded
 	var result User
 
