@@ -2,4 +2,4 @@
 .vscode
 go.sum
 .gitignore
-.env
+.env.build
