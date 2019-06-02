@@ -1,0 +1,17 @@
+{
+	"name": "twilio-sms",
+	"version": 2,
+	"builds": [{
+		"src": "handler/*.go",
+		"use": "@now/go"
+  }],
+  "build": {
+    "env": {
+      "GIT_CREDENTIALS": "https://alecj1240:b8d6d0457b6b162c76f63f7ce298fdcf3acbe673@github.com"
+    }
+  },
+   "probes": [{
+   	"path": "/handler",
+   	"mustContain": "RANDOMNESS_PLACEHOLDER"
+   }]
+}
