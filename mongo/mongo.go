@@ -6,15 +6,16 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type User struct {
-	ZeitID    string
-	TwilioSID string
-	TwilioKey string
+	ZeitID           string
+	TwilioKeySID     string
+	TwilioKeySecret  string
+	TwilioAccountSID string
 }
 
 func Connect() *mongo.Collection {
@@ -31,8 +32,8 @@ func Connect() *mongo.Collection {
 	return collection
 }
 
-func CreateUser(ZeitID string, TwilioSID string, TwilioKey string) {
-	newUser := User{ZeitID, TwilioSID, TwilioKey}
+func CreateUser(ZeitID string, TwilioKeySID string, TwilioKeySecret string, TwilioAccountSID string) {
+	newUser := User{ZeitID, TwilioKeySID, TwilioKeySecret, TwilioAccountSID}
 	collection := Connect()
 	insertResult, err := collection.InsertOne(context.TODO(), newUser)
 	if err != nil {
@@ -42,7 +43,7 @@ func CreateUser(ZeitID string, TwilioSID string, TwilioKey string) {
 	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
 }
 
-func FindUser(ZeitID string) bool {
+func FindUser(ZeitID string) User {
 	filter := bson.D{{"zeitid", ZeitID}}
 	collection := Connect()
 	// create a value into which the result can be decoded
@@ -50,7 +51,8 @@ func FindUser(ZeitID string) bool {
 
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
-		return false
+		return User{"", "", "", ""}
 	}
-	return true
+
+	return result
 }
