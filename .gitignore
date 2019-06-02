@@ -1,3 +1,5 @@
 .now
 .vscode
 go.sum
+.gitignore
+.env

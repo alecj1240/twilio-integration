@@ -31,7 +31,7 @@ type UserRequest struct {
 	Email    string `json:"email"`
 }
 
-// Main
+// Handler - handles the functions
 func Handler(res http.ResponseWriter, req *http.Request) {
 
 	if req.Method == "OPTIONS" {
