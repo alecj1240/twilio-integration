@@ -1,10 +1,9 @@
 {
 	"name": "twilio-sms",
 	"version": 2,
-	"builds": [{
-		"src": "handler/*.go",
-		"use": "@now/go@canary"
-  }],
+  "builds": [
+    { "src": "handler/index.go", "use": "@now/go@canary"}
+  ],
   "build": {
     "env": {
       "GIT_CREDENTIALS": "@git-credential"

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -24,14 +23,13 @@ func GetUserNumbers(APIKeySID string, APIKeySecret string, AccountSID string) []
 
 	userNumbers := make([]string, 0)
 	for _, number := range twilioNumbers.IncomingPhoneNumbers {
-		log.Println(number.PhoneNumber)
 		userNumbers = append(userNumbers, number.PhoneNumber)
 	}
 
 	return userNumbers
 }
 
-func CreateNumber(APIKeySID string, APIKeySecret string, AccountSID string, areaCode string) {
+func CreateNumber(APIKeySID string, APIKeySecret string, AccountSID string, areaCode string) string {
 	apiURL := "https://" + APIKeySID + ":" + APIKeySecret + "@api.twilio.com/2010-04-01/Accounts/" + AccountSID + "/IncomingPhoneNumbers.json"
 	data := url.Values{}
 	data.Set("AreaCode", areaCode)
@@ -43,9 +41,11 @@ func CreateNumber(APIKeySID string, APIKeySecret string, AccountSID string, area
 	resp, _ := client.Do(r)
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	var twilioNumber NumberCreated
+	err = json.Unmarshal(bodyBytes, &twilioNumber)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
-	bodyString := string(bodyBytes)
-	log.Println(bodyString)
+
+	return twilioNumber.PhoneNumber
 }
