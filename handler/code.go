@@ -1,18 +1,28 @@
 package handler
 
-import (
-	"net/url"
-	"strings"
-)
+import "fmt"
 
 func NodeJS(accountSid string, phoneNumber string, apiKeySID string, apiKeySecret string) string {
-	//str := encodeURIComponent("const accountSid = 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';const authToken = 'your_auth_token';const client = require('twilio')(accountSid, authToken);client.messages.create%28%7Bfrom%3A%20%27%2B15017122661%27%2C%20body%3A%20%27body%27%2C%20to%3A%20%27%2B15558675310%27%7D%29.then(message => console.log(message.sid));")
-	//return "<Page><Code>" + "<H1> Heillo </H1>" + "</Code></Page>"
-	return "<Page><H1> Send an SMS message</H1><Code>" + "curl -X POST https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/Messages.json --data-urlencode 'From=" + phoneNumber + "' --data-urlencode 'Body=Body' --data-urlencode 'To=" + phoneNumber + "' -u " + apiKeySID + ":" + apiKeySecret + "</Code></Page>"
-}
+	str := `
+	<Page>
+		<Code>
+			// Download the helper library from https://www.twilio.com/docs/node/install
+			// Your Account Sid and Auth Token from twilio.com/console
+			// DANGER! This is insecure. See http://twil.io/secure
+			const accountSid = '%s';
+			const authToken = '%s';
+			const client = require('twilio')(accountSid, authToken);
 
-func encodeURIComponent(str string) string {
-	r := url.QueryEscape(str)
-	r = strings.Replace(r, "+", "%20", -1)
-	return r
+			client.messages
+				.create(&#123;
+					body: 'This is the ship that made the Kessel Run in fourteen parsecs?',
+					from: '%s',
+					to: '%s'
+			&#125;)
+			.then(message => console.log(message.sid));
+		</Code>
+	</Page>
+	`
+	str = fmt.Sprintf(str, apiKeySID, apiKeySecret, phoneNumber, phoneNumber)
+	return str
 }

@@ -2,9 +2,9 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"hackathon/mymongo"
+	"hackathon/views"
 	"log"
 	"net/http"
 
@@ -15,7 +15,7 @@ import (
 // Handler - handles the functions
 func Handler(res http.ResponseWriter, req *http.Request) {
 	if req.Method == "OPTIONS" {
-		respond(res, nil)
+		respond(res, "")
 		return
 	}
 
@@ -42,17 +42,10 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 			// if there are some numbers - ask if they want to use one of these
 			if len(userNumbers) > 0 {
-
-				page := "<Page><Container><H1>Select A Phone Number</H1><BR /><P><B>please type in one of the phone numbers listed below</B></P>"
-				for _, number := range userNumbers {
-					page = page + "<P>" + number + "</P><BR />"
-				}
-				page = page + "</Container><Container><Input label='Your Twilio Phone Number' name='twilioPhoneNumber' /><Button action='selectNumber'>Use This Number</Button></Container><BR /><BR /><P>If you hate all the numbers above, you can make a new one that will be used</P><Button action='createInstead'>Create A Different Phone Number</Button></Page>"
-
+				page := views.SelectNumber(userNumbers)
 				respond(res, page)
 				client.Disconnect(context.TODO())
 				return
-
 			} else {
 				// if there are no numbers - show them the form to create a phonenumber
 				respond(res, "<Page><Container><H1>Create A Twilio Number</H1><Input label='Area Code of Your Desired Phone Number' name='areaCode' /></Container><Container><P>Note: you may be subject to charges from Twilio</P><Button action='createNumber'>Create Number</Button></Container></Page>")
@@ -79,12 +72,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 		// if there are some numbers - ask if they want to use one of these
 		if len(userNumbers) > 0 {
-			page := "<Page><Container><H1>Select A Phone Number</H1><BR /><P><B>please type in one of the phone numbers listed below</B></P>"
-			for _, number := range userNumbers {
-				page = page + "<P>" + number + "</P><BR />"
-			}
-			page = page + "</Container><Container><Input label='Your Twilio Phone Number' name='twilioPhoneNumber' /><Button action='selectNumber'>Use This Number</Button></Container><BR /><BR /><P>If you hate all the numbers above, you can make a new one that will be used</P><Button action='createInstead'>Create A Different Phone Number</Button></Page>"
-
+			page := views.SelectNumber(userNumbers)
 			respond(res, page)
 			client.Disconnect(context.TODO())
 			return
@@ -119,14 +107,11 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func respond(res http.ResponseWriter, obj interface{}) {
+func respond(res http.ResponseWriter, obj string) {
 	res.Header().Set("Access-Control-Allow-Origin", "*")
 	res.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 	res.Header().Set("Access-Control-Allow-Headers", "Authorization, Accept, Content-Type")
 	res.Header().Set("Content-Type", "application/json")
 
-	j := json.NewEncoder(res)
-	j.SetEscapeHTML(false)
-	j.Encode(obj)
-	res.Write([]byte("\n"))
+	res.Write([]byte(obj))
 }
