@@ -48,7 +48,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 				return
 			} else {
 				// if there are no numbers - show them the form to create a phonenumber
-				respond(res, "<Page><Container><H1>Create A Twilio Number</H1><Input label='Area Code of Your Desired Phone Number' name='areaCode' /></Container><Container><P>Note: you may be subject to charges from Twilio</P><Button action='createNumber'>Create Number</Button></Container></Page>")
+				respond(res, views.CreateNumber())
 				client.Disconnect(context.TODO())
 				return
 			}
@@ -59,7 +59,7 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 		return
 
 	case "createInstead":
-		respond(res, "<Page><Container><H1>Create A Twilio Number</H1><Input label='Area Code of Your Desired Phone Number' name='areaCode' /></Container><Container><P>Note: you may be subject to charges from Twilio</P><Button action='createNumber'>Create Number</Button></Container></Page>")
+		respond(res, views.CreateNumber())
 		client.Disconnect(context.TODO())
 		return
 	case "createUser":
@@ -67,7 +67,6 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 
 		mymongo.CreateUser(client, zeitPayload.User.Id, zeitPayload.ClientState.APIKeySID, zeitPayload.ClientState.APIKeySecret, zeitPayload.ClientState.TwilioAccountSID)
 		user := mymongo.FindUser(client, zeitPayload.User.Id)
-		// Get the numbers from Twilio
 		userNumbers := GetUserNumbers(user.TwilioKeySID, user.TwilioKeySecret, user.TwilioAccountSID)
 
 		// if there are some numbers - ask if they want to use one of these
@@ -78,24 +77,33 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 			return
 		} else {
 			// if there are no numbers - show them the form to create a phonenumber
-			respond(res, "<Page><Container><H1>Create A Twilio Number</H1><Input label='Area Code of Phone Number (3 digits)' name='areaCode' /></Container><Container><P>Note: you may be subject to charges from Twilio</P><Button action='createNumber'>Create Number</Button></Container></Page>")
+			respond(res, views.CreateNumber())
 			client.Disconnect(context.TODO())
 			return
 		}
 
 	case "selectNumber":
 		user := mymongo.FindUser(client, zeitPayload.User.Id)
-		respond(res, NodeJS(user.TwilioAccountSID, zeitPayload.ClientState.TwilioPhoneNumbers, user.TwilioKeySID, user.TwilioKeySecret))
+		switch zeitPayload.ClientState.Language {
+		case "Node.JS":
+			respond(res, NodeJS(user.TwilioAccountSID, zeitPayload.ClientState.TwilioPhoneNumbers, user.TwilioKeySID, user.TwilioKeySecret))
+		case "Php":
+			respond(res, Php(user.TwilioAccountSID, zeitPayload.ClientState.TwilioPhoneNumbers, user.TwilioKeySID, user.TwilioKeySecret))
+		case "Python":
+			respond(res, Python(user.TwilioAccountSID, zeitPayload.ClientState.TwilioPhoneNumbers, user.TwilioKeySID, user.TwilioKeySecret))
+		default:
+			respond(res, NodeJS(user.TwilioAccountSID, zeitPayload.ClientState.TwilioPhoneNumbers, user.TwilioKeySID, user.TwilioKeySecret))
+		}
 		client.Disconnect(context.TODO())
 		return
 
 	case "createNumber":
 
 		user := mymongo.FindUser(client, zeitPayload.User.Id)
+		CreateNumber(user.TwilioKeySID, user.TwilioKeySecret, user.TwilioAccountSID, zeitPayload.ClientState.TwilioAreaCode)
+		userNumbers := GetUserNumbers(user.TwilioKeySID, user.TwilioKeySecret, user.TwilioAccountSID)
 
-		newNumber := CreateNumber(user.TwilioKeySID, user.TwilioKeySecret, user.TwilioAccountSID, zeitPayload.ClientState.TwilioAreaCode)
-
-		respond(res, NodeJS(user.TwilioAccountSID, newNumber, user.TwilioKeySID, user.TwilioKeySecret))
+		respond(res, views.SelectNumber(userNumbers))
 		client.Disconnect(context.TODO())
 		return
 

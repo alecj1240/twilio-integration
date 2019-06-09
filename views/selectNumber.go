@@ -1,10 +1,14 @@
 package views
 
 func SelectNumber(userNumbers []string) string {
+	languages := make([]string, 3)
+	languages[0] = "Node.JS"
+	languages[1] = "Python"
+	languages[2] = "Php"
 	page := `
 	<Page>
 		<Container>
-			<H1>Select A Phone Number</H1>
+			<H1>Select A Phone Number & A Programming Language</H1>
 			<BR />
 		</Container>
 		<Container>
@@ -16,7 +20,12 @@ func SelectNumber(userNumbers []string) string {
 
 	page = page + `
 			</Select>
-			<Button action='selectNumber'>Use This Number</Button>
+			<Select name="language" value='` + languages[0] + `'>`
+	for _, language := range languages {
+		page = page + "<Option value='" + language + "' caption='" + language + "' />"
+	}
+	page = page + `</Select>
+			<Button action='selectNumber'>Use This Number & Language</Button>
 		</Container>
 		<BR />
 		<P>If you hate all the numbers above, you can make a new one that will be used</P>

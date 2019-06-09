@@ -27,6 +27,7 @@ type ClientState struct {
 	TwilioAccountSID   string `json:"TwilioAccountSID"`
 	TwilioPhoneNumbers string `json:"twilioPhoneNumber"`
 	TwilioAreaCode     string `json:"areaCode"`
+	Language           string `json:"language"`
 }
 
 type UserRequest struct {
